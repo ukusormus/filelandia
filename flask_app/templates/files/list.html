@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% set title = "My files" %}
+
+{% block content %}
+    <h3>My files</h3>
+
+    <table id="files_table" style="text-align: center; border:1px solid black;">
+        <thead>
+        <th>Download</th>
+        <th>Delete</th>
+        <th>Filename</th>
+        <th>Upload date</th>
+        <th>File size</th>
+        <th>MIME type</th>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+
+    <script>
+        /**
+         * Populate table with data (user's uploaded files' metadata) & add download/delete buttons.
+         **/
+
+        const table = document.querySelector("#files_table");
+
+        const downloadIconImage = document.createElement("img");
+        downloadIconImage.src = "{{ url_for('static', filename='img/download-icon.png') }}";
+        downloadIconImage.style = "width: 1em; filter: invert(100%);";
+
+        const deleteIconImage = document.createElement("img");
+        deleteIconImage.src = "{{ url_for('static', filename='img/delete-icon.png') }}";
+        deleteIconImage.style = "width: 1em; filter: invert(100%); cursor: pointer;";
+
+
+        fetch("{{ url_for("main.get_files_metadata_json") }}", {mode: "same-origin"})
+            .then((response) => response.json())
+            .then((data) => data.forEach(
+                    file => {
+                        // New row for each file
+                        const row = table.querySelector("tbody").insertRow();
+
+                        // Download button
+                        const downloadLink = "{{ url_for('main.download', filename='') }}" + file.filename;
+                        const downloadButton = row.insertCell()
+                            .appendChild(document.createElement("a"))
+                            .appendChild(downloadIconImage.cloneNode(true));
+                        downloadButton.parentElement.href = downloadLink;
+
+                        // Delete button
+                        const deleteLink = "{{ url_for('main.delete', filename='') }}" + file.filename;
+                        const deleteButton = row.insertCell()
+                            .appendChild(deleteIconImage.cloneNode(true));
+                        deleteButton.addEventListener("click", () => {
+                            fetch(deleteLink, {
+                                method: "DELETE",
+                                mode: "same-origin"
+                            })
+                                .then(() => location.reload())
+                        });
+
+                        // File's metadata
+                        row.insertCell().appendChild(document.createTextNode(file.filename));
+                        row.insertCell().appendChild(document.createTextNode(file.uploadDate));
+                        row.insertCell().appendChild(document.createTextNode(file.fileSize));
+                        row.insertCell().appendChild(document.createTextNode(file.mimeType));
+                    }
+                )
+            )
+            .then(() => {
+                // If no files, remove table and add notice
+                if (table.querySelector("tbody").children.length === 0) {
+                    table.parentNode.appendChild(document.createTextNode("No files found. Try uploading one!"))
+                    table.remove();
+                }
+            });
+
+    </script>
+
+{% endblock %}

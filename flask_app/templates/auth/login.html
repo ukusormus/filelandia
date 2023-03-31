@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% set title = "Sign In" %}
+
+{% block content %}
+
+    <h3>Log In to Filelandia</h3>
+
+    <form action="" method="POST" novalidate autocomplete="off">
+        {{ form.csrf_token }}
+        <p>
+            {{ form.username.label }}<br>
+            {{ form.username(size=32) }}
+        </p>
+        <p>
+            {{ form.password.label }}<br>
+            {{ form.password(size=32) }}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+
+{% endblock %}

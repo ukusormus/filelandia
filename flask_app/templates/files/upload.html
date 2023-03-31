@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% set title = "Upload file" %}
+
+{% block content %}
+    <h3>Upload file</h3>
+
+    <form method="POST" enctype="multipart/form-data" novalidate>
+        {{ form.csrf_token() }}
+        {{ form.file }}
+        <br><br>
+        <input type="submit" value="Upload!">
+    </form>
+{% endblock %}
